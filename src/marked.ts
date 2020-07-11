@@ -23,6 +23,8 @@ import { Parser } from "./parser.ts";
 export class Marked {
   static options = new MarkedOptions();
   protected static simpleRenderers: SimpleRenderer[] = [];
+  public static content: string = "";
+  public static metadata: any = {};
 
   /**
    * Merges the default options with options that will be set.
@@ -51,12 +53,27 @@ export class Marked {
    * @param options Hash of options. They replace, but do not merge with the default options.
    * If you want the merging, you can to do this via `Marked.setOptions()`.
    */
-  static parse(src: string, options: MarkedOptions = this.options): string {
+  static parse(src: string, options: MarkedOptions = this.options) {
     try {
-      const { tokens, links } = this.callBlockLexer(src, options);
-      return this.callParser(tokens, links, options);
+      const { tokens, links, fm } = this.callBlockLexer(src, options);
+      this.content = this.callParser(tokens, links, options);
+      this.metadata = <JSON> fm;
+      return this.content;
     } catch (e) {
       return this.callMe(e);
+    }
+  }
+
+  static fm(): JSON {
+    try {
+      if (this.content.length != 0) {
+        return this.metadata;
+      } else {
+        throw new ReferenceError;
+      }
+    } catch (e) {
+      this.callMe(e);
+      return JSON;
     }
   }
 
@@ -72,7 +89,7 @@ export class Marked {
     src: string,
     options: MarkedOptions = this.options,
   ): DebugReturns {
-    const { tokens, links } = this.callBlockLexer(src, options);
+    const { tokens, links, fm } = this.callBlockLexer(src, options);
     let origin = tokens.slice();
     const parser = new Parser(options);
     parser.simpleRenderers = this.simpleRenderers;
@@ -94,7 +111,7 @@ export class Marked {
       }
     });
 
-    return { tokens: origin, links, result };
+    return { tokens: origin, links, fm, result };
   }
 
   protected static callBlockLexer(

@@ -184,6 +184,8 @@ export class BlockLexer<T extends typeof BlockLexer> {
   ): LexerReturns {
     let nextPart = src;
     let execArr: RegExpExecArray | null;
+    let metaArr: RegExpExecArray | null; 
+    let metadata: {[k: string]: any} = {};
 
     mainLoop:
     while (nextPart) {
@@ -291,8 +293,25 @@ export class BlockLexer<T extends typeof BlockLexer> {
       // hr
       if ((execArr = this.rules.hr.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
-        this.tokens.push({ type: TokenType.hr });
-        continue;
+
+        // Checks if the previous string contains a content
+        if ((this.tokens.length == 0) || (this.tokens.every(object => object.type == TokenType.space))) {
+          
+          // Grabs front-matter metadata 
+          while (metaArr = /^( *[a-z A-Z]+) *(?::) *( *[a-z A-Z]+) *(?:\n+|$)/.exec(nextPart)) {
+            metadata[metaArr[1]] = metaArr[2];
+            nextPart = nextPart.substring(metaArr[0].length);
+          }
+          // Deletes the front-matter closing
+          if (execArr = this.rules.hr.exec(nextPart)){
+            nextPart = nextPart.substring(execArr[0].length);
+          }
+          continue;
+
+        } else {
+          this.tokens.push({ type: TokenType.hr });
+          continue;
+        }
       }
 
       // blockquote
@@ -499,6 +518,6 @@ export class BlockLexer<T extends typeof BlockLexer> {
       }
     }
 
-    return { tokens: this.tokens, links: this.links };
+    return { tokens: this.tokens, links: this.links, fm: metadata };
   }
 }
