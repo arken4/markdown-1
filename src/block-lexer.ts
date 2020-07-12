@@ -299,7 +299,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
           
           // Grabs front-matter metadata
           // This method only support <key>:<value> pair 
-          while (metaArr = /^ *(\w+) *(?::) *( *[a-zA-Z-_ ]+) *(?:\n+|$)/.exec(nextPart)) {
+          while (metaArr = /^ *(\w+) *(?::) *( *[a-zA-Z0-9-_.,!?:"'`~@#$%^&*+\/|\\()[\]{} ]+) *(?:\n+|$)/.exec(nextPart)) {
             metadata[metaArr[1]] = metaArr[2];
             nextPart = nextPart.substring(metaArr[0].length);
           }
