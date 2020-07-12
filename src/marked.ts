@@ -23,6 +23,8 @@ import { Parser } from "./parser.ts";
 export class Marked {
   static options = new MarkedOptions();
   protected static simpleRenderers: SimpleRenderer[] = [];
+  public static content: string = "";
+  public static metadata: any = {};
 
   /**
    * Merges the default options with options that will be set.
@@ -53,8 +55,10 @@ export class Marked {
    */
   static parse(src: string, options: MarkedOptions = this.options): string {
     try {
-      const { tokens, links } = this.callBlockLexer(src, options);
-      return this.callParser(tokens, links, options);
+      const { tokens, links, fm } = this.callBlockLexer(src, options);
+      this.content = this.callParser(tokens, links, options);
+      this.metadata = <JSON> fm;
+      return this.content;
     } catch (e) {
       return this.callMe(e);
     }
@@ -72,7 +76,7 @@ export class Marked {
     src: string,
     options: MarkedOptions = this.options,
   ): DebugReturns {
-    const { tokens, links } = this.callBlockLexer(src, options);
+    const { tokens, links, fm } = this.callBlockLexer(src, options);
     let origin = tokens.slice();
     const parser = new Parser(options);
     parser.simpleRenderers = this.simpleRenderers;
@@ -94,7 +98,23 @@ export class Marked {
       }
     });
 
-    return { tokens: origin, links, result };
+    return { tokens: origin, links, fm, result };
+  }
+
+  /**
+   * Read the metadata and returns it as a JSON, 
+   * `Marked.parse()` needs to be run first before this function
+   */
+  static fm() {
+    try {
+      if (this.content.length != 0) {
+        return <JSON> this.metadata;
+      } else {
+        throw new Error("No data has been parsed!");
+      }
+    } catch (e) {
+      return this.callMe(e);
+    }
   }
 
   protected static callBlockLexer(

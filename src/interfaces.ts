@@ -171,6 +171,7 @@ export class MarkedOptions {
 export interface LexerReturns {
   tokens: Token[];
   links: Links;
+  fm: {[key: string]: any};
 }
 
 export interface DebugReturns extends LexerReturns {

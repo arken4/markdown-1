@@ -1,3 +1,7 @@
+---
+Title    : Hello World
+Subtitle : Front-matter test
+---
 # Hello World
 
 ## This an example for `md2html.ts`
