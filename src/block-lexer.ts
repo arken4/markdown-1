@@ -297,8 +297,9 @@ export class BlockLexer<T extends typeof BlockLexer> {
         // Checks if the previous string contains a content
         if ((this.tokens.length == 0) || (this.tokens.every(object => object.type == TokenType.space))) {
           
-          // Grabs front-matter metadata 
-          while (metaArr = /^( *[a-z A-Z]+) *(?::) *( *[a-z A-Z]+) *(?:\n+|$)/.exec(nextPart)) {
+          // Grabs front-matter metadata
+          // This method only support <key>:<value> pair 
+          while (metaArr = /^ *(\w+) *(?::) *( *[a-zA-Z-_ ]+) *(?:\n+|$)/.exec(nextPart)) {
             metadata[metaArr[1]] = metaArr[2];
             nextPart = nextPart.substring(metaArr[0].length);
           }

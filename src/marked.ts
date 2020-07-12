@@ -64,16 +64,15 @@ export class Marked {
     }
   }
 
-  static fm(): JSON {
+  static fm() {
     try {
       if (this.content.length != 0) {
-        return this.metadata;
+        return <JSON> this.metadata;
       } else {
-        throw new ReferenceError;
+        throw new Error("No data has been parsed!");
       }
     } catch (e) {
-      this.callMe(e);
-      return JSON;
+      return this.callMe(e);
     }
   }
 
