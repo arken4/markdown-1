@@ -19,6 +19,7 @@ import {
   TokenType,
 } from "./interfaces.ts";
 import { Parser } from "./parser.ts";
+import { Yaml } from "./yaml.ts";
 
 export class Marked {
   static options = new MarkedOptions();
@@ -126,6 +127,8 @@ export class Marked {
         `Expected that the 'src' parameter would have a 'string' type, got '${typeof src}'`,
       );
     }
+
+    Yaml.initYaml();
 
     // Preprocessing.
     src = src

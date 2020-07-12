@@ -21,6 +21,7 @@ import {
   TokenType,
 } from "./interfaces.ts";
 import { Marked } from "./marked.ts";
+import { Yaml } from "./yaml.ts"
 
 export class BlockLexer<T extends typeof BlockLexer> {
   static simpleRules: RegExp[] = [];
@@ -296,13 +297,18 @@ export class BlockLexer<T extends typeof BlockLexer> {
 
         // Checks if the previous string contains a content
         if ((this.tokens.length == 0) || (this.tokens.every(object => object.type == TokenType.space))) {
-          
+          let yaml = "";
+
           // Grabs front-matter metadata
           // This method only support <key>:<value> pair 
           while (metaArr = /^ *(\w+) *(?::) *( *[a-zA-Z0-9-_.,!?:"'`~@#$%^&*+\/|\\()[\]{} ]+) *(?:\n+|$)/.exec(nextPart)) {
-            metadata[metaArr[1]] = metaArr[2];
+            // metadata[metaArr[1]] = metaArr[2];
+            yaml = yaml.concat(metaArr[0]);
             nextPart = nextPart.substring(metaArr[0].length);
           }
+
+          metadata = Yaml.parseYaml(yaml);
+          
           // Deletes the front-matter closing
           if (execArr = this.rules.hr.exec(nextPart)){
             nextPart = nextPart.substring(execArr[0].length);

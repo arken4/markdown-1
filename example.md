@@ -19,7 +19,6 @@ const decoder = new TextDecoder("utf-8");
 const filename = Deno.args[0];
 const markdown = decoder.decode(await Deno.readFile(filename));
 const markup = Marked.parse(markdown);
-console.log(markup);
 ```
 
 This module is forked from [ts-stack/markdown](https://github.com/ts-stack/markdown/tree/bb47aa8e625e89e6aa84f49a98536a3089dee831)
