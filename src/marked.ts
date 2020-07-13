@@ -23,9 +23,9 @@ import { Yaml } from "./yaml.ts";
 
 export class Marked {
   static options = new MarkedOptions();
+  static content: string = "";
+  static metadata: any = {};
   protected static simpleRenderers: SimpleRenderer[] = [];
-  public static content: string = "";
-  public static metadata: any = {};
 
   /**
    * Merges the default options with options that will be set.
@@ -54,12 +54,13 @@ export class Marked {
    * @param options Hash of options. They replace, but do not merge with the default options.
    * If you want the merging, you can to do this via `Marked.setOptions()`.
    */
-  static parse(src: string, options: MarkedOptions = this.options): string {
+  static async parse(src: string, options: MarkedOptions = this.options): Promise<Marked> {
     try {
+      await Yaml.initYaml();
       const { tokens, links, fm } = this.callBlockLexer(src, options);
       this.content = this.callParser(tokens, links, options);
       this.metadata = <JSON> fm;
-      return this.content;
+      return this;
     } catch (e) {
       return this.callMe(e);
     }
@@ -73,10 +74,11 @@ export class Marked {
    * @param options Hash of options. They replace, but do not merge with the default options.
    * If you want the merging, you can to do this via `Marked.setOptions()`.
    */
-  static debug(
+  static async debug(
     src: string,
     options: MarkedOptions = this.options,
-  ): DebugReturns {
+  ): Promise<DebugReturns> {
+    await Yaml.initYaml();
     const { tokens, links, fm } = this.callBlockLexer(src, options);
     let origin = tokens.slice();
     const parser = new Parser(options);
@@ -127,8 +129,6 @@ export class Marked {
         `Expected that the 'src' parameter would have a 'string' type, got '${typeof src}'`,
       );
     }
-
-    Yaml.initYaml();
 
     // Preprocessing.
     src = src

@@ -1,6 +1,10 @@
 ---
 Title    : Hello World
 Subtitle : Front-matter test
+Series: 
+  - Hello
+  - This is
+  - Something: else
 ---
 # Hello World
 
