@@ -1,10 +1,10 @@
 ---
-Title    : Hello World
-Subtitle : Front-matter test
-Series: 
-  - Hello
-  - This is
-  - Something: else
+title    : Hello world!
+subtitle : Front-matter test
+an-ordinary-list: 
+  - this
+  - is
+  - a: list
 ---
 # Hello World
 

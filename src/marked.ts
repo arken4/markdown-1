@@ -48,7 +48,7 @@ export class Marked {
   }
 
   /**
-   * Accepts Markdown text and returns text in HTML format.
+   * Accepts Markdown text and returns Marked object.
    *
    * @param src String of markdown source to be compiled.
    * @param options Hash of options. They replace, but do not merge with the default options.
@@ -68,7 +68,7 @@ export class Marked {
 
   /**
    * Accepts Markdown text and returns object with text in HTML format,
-   * tokens and links from `BlockLexer.parser()`.
+   * tokens, metadata, and links from `BlockLexer.parser()`.
    *
    * @param src String of markdown source to be compiled.
    * @param options Hash of options. They replace, but do not merge with the default options.
@@ -102,22 +102,6 @@ export class Marked {
     });
 
     return { tokens: origin, links, fm, result };
-  }
-
-  /**
-   * Read the metadata and returns it as a JSON, 
-   * `Marked.parse()` needs to be run first before this function
-   */
-  static fm() {
-    try {
-      if (this.content.length != 0) {
-        return <JSON> this.metadata;
-      } else {
-        throw new Error("No data has been parsed!");
-      }
-    } catch (e) {
-      return this.callMe(e);
-    }
   }
 
   protected static callBlockLexer(

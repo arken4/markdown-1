@@ -38,6 +38,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
   protected options: MarkedOptions;
   protected links: Links = {};
   protected tokens: Token[] = [];
+  protected meta: {[k: string]: any} = {};
   protected hasRulesGfm!: boolean;
   protected hasRulesTables!: boolean;
 
@@ -184,9 +185,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
     isBlockQuote?: boolean,
   ): LexerReturns {
     let nextPart = src;
-    let execArr: RegExpExecArray | null;
-    let metaArr: RegExpExecArray | null; 
-    let meta: {[k: string]: any} = {};
+    let execArr, metaArr: RegExpExecArray | null;
 
     mainLoop:
     while (nextPart) {
@@ -294,25 +293,19 @@ export class BlockLexer<T extends typeof BlockLexer> {
       // hr
       if ((execArr = this.rules.hr.exec(nextPart))) {
 
-        // Checks if the previous string contains a content
+        // Checks if the previous string contains a content.
         if ((this.tokens.length == 0) || (this.tokens.every(object => object.type == TokenType.space))) {
 
-          // Grabs front-matter data
-          // This method only support <key>:<value> pair 
-          // while (metaArr = /^ *(\w+) *(?::) *( *[a-zA-Z0-9-_.,!?:"'`~@#$%^&*+\/|\\()[\]{} ]+) *(?:\n+|$)/.exec(nextPart)) {
-          //   // metadata[metaArr[1]] = metaArr[2];
-          //   Yaml.concat(metaArr[0]);
-          //   nextPart = nextPart.substring(metaArr[0].length);
-          // }
-          if (metaArr = /^(?:\-\-\-)(.*?)(?:\-\-\-|\.\.\.)/s.exec(nextPart)) { 
-            meta = Yaml.parseYaml(metaArr[1]);
+          // Grabs front-matter data and parse it into Javascript object.
+          if (metaArr = /^(?:\-\-\-)(.*?)(?:\-\-\-|\.\.\.)/s.exec(nextPart)) {
             nextPart = nextPart.substring(metaArr[0].length);
+            this.meta = Yaml.parseYaml(metaArr[1]);
           }
           continue;
 
         } else {
-          this.tokens.push({ type: TokenType.hr });
           nextPart = nextPart.substring(execArr[0].length);
+          this.tokens.push({ type: TokenType.hr });
           continue;
         }
       }
@@ -521,6 +514,6 @@ export class BlockLexer<T extends typeof BlockLexer> {
       }
     }
 
-    return { tokens: this.tokens, links: this.links, fm: meta };
+    return { tokens: this.tokens, links: this.links, fm: this.meta };
   }
 }
