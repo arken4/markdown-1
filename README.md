@@ -1,6 +1,6 @@
 # markdown
 
-Deno Markdown module forked from https://github.com/ts-stack/markdown/tree/bb47aa8e625e89e6aa84f49a98536a3089dee831
+Deno Markdown module with Front-matter support forked from https://github.com/ubersl0th/markdown
 
 ### Example usage
 
@@ -12,17 +12,17 @@ import { Marked } from "./mod.ts";
 const decoder = new TextDecoder("utf-8");
 const filename = Deno.args[0];
 const markdown = decoder.decode(await Deno.readFile(filename));
-const markup = Marked.parse(markdown);
-console.log(markup);
+const markup = await Marked.parse(markdown);
+console.log(Marked.content);
+console.log(Marked.metadata);
 ```
 
 Now running:
 
 ```bash
-deno run --allow-read md2html.ts example.md > example.html
+deno run --allow-read --allow-net md2html.ts example.md > example.html
 ```
-
-Will output:
+The `--allow-net` flag is required to use `fetch()` on Yaml parsing. Will output:
 
 ```html
 <h1 id="hello-world">Hello World</h1>
@@ -49,6 +49,12 @@ console.log(markup);
   >
 </p>
 <p>Made for Deno <img src="https://deno.land/logo.svg" alt="deno-logo" /></p>
+
+{
+  title: "Hello world!",
+  subtitle: "Front-matter test",
+  an-ordinary-list: [ "this", "is", { a: "list" } ]
+}
 ```
 
 ---

@@ -21,6 +21,7 @@ import {
   TokenType,
 } from "./interfaces.ts";
 import { Marked } from "./marked.ts";
+import { Yaml } from "./yaml.ts"
 
 export class BlockLexer<T extends typeof BlockLexer> {
   static simpleRules: RegExp[] = [];
@@ -37,6 +38,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
   protected options: MarkedOptions;
   protected links: Links = {};
   protected tokens: Token[] = [];
+  protected meta: {[k: string]: any} = {};
   protected hasRulesGfm!: boolean;
   protected hasRulesTables!: boolean;
 
@@ -183,9 +185,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
     isBlockQuote?: boolean,
   ): LexerReturns {
     let nextPart = src;
-    let execArr: RegExpExecArray | null;
-    let metaArr: RegExpExecArray | null; 
-    let metadata: {[k: string]: any} = {};
+    let execArr, metaArr: RegExpExecArray | null;
 
     mainLoop:
     while (nextPart) {
@@ -292,24 +292,19 @@ export class BlockLexer<T extends typeof BlockLexer> {
 
       // hr
       if ((execArr = this.rules.hr.exec(nextPart))) {
-        nextPart = nextPart.substring(execArr[0].length);
 
-        // Checks if the previous string contains a content
+        // Checks if the previous string contains a content.
         if ((this.tokens.length == 0) || (this.tokens.every(object => object.type == TokenType.space))) {
-          
-          // Grabs front-matter metadata
-          // This method only support <key>:<value> pair 
-          while (metaArr = /^ *(\w+) *(?::) *( *[a-zA-Z0-9-_.,!?:"'`~@#$%^&*+\/|\\()[\]{} ]+) *(?:\n+|$)/.exec(nextPart)) {
-            metadata[metaArr[1]] = metaArr[2];
+
+          // Grabs front-matter data and parse it into Javascript object.
+          if (metaArr = /^(?:\-\-\-)(.*?)(?:\-\-\-|\.\.\.)/s.exec(nextPart)) {
             nextPart = nextPart.substring(metaArr[0].length);
-          }
-          // Deletes the front-matter closing
-          if (execArr = this.rules.hr.exec(nextPart)){
-            nextPart = nextPart.substring(execArr[0].length);
+            this.meta = Yaml.parseYaml(metaArr[1]);
           }
           continue;
 
         } else {
+          nextPart = nextPart.substring(execArr[0].length);
           this.tokens.push({ type: TokenType.hr });
           continue;
         }
@@ -519,6 +514,6 @@ export class BlockLexer<T extends typeof BlockLexer> {
       }
     }
 
-    return { tokens: this.tokens, links: this.links, fm: metadata };
+    return { tokens: this.tokens, links: this.links, fm: this.meta };
   }
 }
