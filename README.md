@@ -12,25 +12,22 @@ import { Marked } from "./mod.ts";
 const decoder = new TextDecoder("utf-8");
 const filename = Deno.args[0];
 const markdown = decoder.decode(await Deno.readFile(filename));
-const markup = await Marked.parse(markdown);
-console.log(Marked.content);
-console.log(Marked.metadata);
+const marked = Marked.parse(markdown);
+console.log(marked.content);
+console.log(marked.metadata);
 ```
 
 Now running:
 
 ```bash
-deno run --allow-read --allow-net md2html.ts example.md > example.html
+deno run --allow-read md2html.ts example.md > example.html
 ```
-The `--allow-net` flag is required to use `fetch()` on Yaml parsing. Will output:
 
 ```html
-<h1 id="hello-world">Hello World</h1>
-<h2 id="this-an-example-for-md2html-ts-">
-  This an example for <code>md2html.ts</code>
-</h2>
+<h1 id="hello-world" href="#hello-world">Hello World</h1>
+<h2 id="this-an-example-for-md2html-ts-" href="#this-an-example-for-md2html-ts-">This an example for <code>md2html.ts</code></h2>
 <p>A small paragraph that will become a <code>&lt;p&gt;</code> tag</p>
-<hr />
+<hr>
 <p>Code Block (md2html.ts)</p>
 
 <pre><code class="lang-typescript">import { Marked } from &quot;./mod.ts&quot;;
@@ -39,7 +36,6 @@ const decoder = new TextDecoder(&quot;utf-8&quot;);
 const filename = Deno.args[0];
 const markdown = decoder.decode(await Deno.readFile(filename));
 const markup = Marked.parse(markdown);
-console.log(markup);
 </code></pre>
 <p>
   This module is forked from

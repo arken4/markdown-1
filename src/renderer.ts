@@ -59,7 +59,7 @@ export class Renderer {
     const id: string = this.options.headerPrefix +
       raw.toLowerCase().replace(/[^\w]+/g, "-");
 
-    return `<h${level} id="${id}" href="${id}">${text}</h${level}>\n`;
+    return `<h${level} id="${id}" href="#${id}">${text}</h${level}>\n`;
   }
 
   hr(): string {

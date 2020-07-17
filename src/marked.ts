@@ -10,6 +10,7 @@
 
 import { BlockLexer } from "./block-lexer.ts";
 import {
+  Obj,
   DebugReturns,
   LexerReturns,
   Links,
@@ -19,14 +20,11 @@ import {
   TokenType,
 } from "./interfaces.ts";
 import { Parser } from "./parser.ts";
-import { Yaml } from "./yaml.ts";
 
 export class Marked {
   static options = new MarkedOptions();
-  static content: string = "";
-  static metadata: any = {};
-  protected static init: boolean = false;
   protected static simpleRenderers: SimpleRenderer[] = [];
+  protected static parsed: Obj = {};
 
   /**
    * Merges the default options with options that will be set.
@@ -49,24 +47,21 @@ export class Marked {
   }
 
   /**
-   * Accepts Markdown text and returns Marked object.
+   * Accepts Markdown text and returns an object.
    *
    * @param src String of markdown source to be compiled.
    * @param options Hash of options. They replace, but do not merge with the default options.
    * If you want the merging, you can to do this via `Marked.setOptions()`.
    */
-  static async parse(src: string, options: MarkedOptions = this.options): Promise<Marked> {
+  static parse(src: string, options: MarkedOptions = this.options): Obj {
     try {
-      if (!this.init) {
-        await Yaml.initYaml();
-        this.init = true;
-      }
       const { tokens, links, fm } = this.callBlockLexer(src, options);
-      this.content = this.callParser(tokens, links, options);
-      this.metadata = <JSON> fm;
-      return this;
+      this.parsed.content = this.callParser(tokens, links, options);
+      this.parsed.metadata = fm;
+      return this.parsed;
     } catch (e) {
-      return this.callMe(e);
+      this.parsed.content = this.callMe(e);
+      return this.parsed;
     }
   }
 
@@ -78,14 +73,10 @@ export class Marked {
    * @param options Hash of options. They replace, but do not merge with the default options.
    * If you want the merging, you can to do this via `Marked.setOptions()`.
    */
-  static async debug(
+  static debug(
     src: string,
     options: MarkedOptions = this.options,
-  ): Promise<DebugReturns> {
-    if (!this.init) {
-      await Yaml.initYaml();
-      this.init = true;
-    }
+  ): DebugReturns {
     const { tokens, links, fm } = this.callBlockLexer(src, options);
     let origin = tokens.slice();
     const parser = new Parser(options);
