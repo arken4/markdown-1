@@ -21,7 +21,7 @@ import {
   TokenType,
 } from "./interfaces.ts";
 import { Marked } from "./marked.ts";
-import { Yaml } from "./yaml.ts"
+import { parse } from "https://deno.land/std/encoding/yaml.ts";
 
 export class BlockLexer<T extends typeof BlockLexer> {
   static simpleRules: RegExp[] = [];
@@ -38,7 +38,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
   protected options: MarkedOptions;
   protected links: Links = {};
   protected tokens: Token[] = [];
-  protected meta: {[k: string]: any} = {};
+  protected frontmatter: object = {};
   protected hasRulesGfm!: boolean;
   protected hasRulesTables!: boolean;
 
@@ -185,7 +185,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
     isBlockQuote?: boolean,
   ): LexerReturns {
     let nextPart = src;
-    let execArr, metaArr: RegExpExecArray | null;
+    let execArr, fmArr: RegExpExecArray | null;
 
     mainLoop:
     while (nextPart) {
@@ -297,9 +297,9 @@ export class BlockLexer<T extends typeof BlockLexer> {
         if ((this.tokens.length == 0) || (this.tokens.every(object => object.type == TokenType.space))) {
 
           // Grabs front-matter data and parse it into Javascript object.
-          if (metaArr = /^(?:\-\-\-)(.*?)(?:\-\-\-|\.\.\.)/s.exec(nextPart)) {
-            nextPart = nextPart.substring(metaArr[0].length);
-            this.meta = Yaml.parseYaml(metaArr[1]);
+          if (fmArr = /^(?:\-\-\-)(.*?)(?:\-\-\-|\.\.\.)/s.exec(nextPart)) {
+            nextPart = nextPart.substring(fmArr[0].length);
+            this.frontmatter = <object> parse(fmArr[1]);
           }
           continue;
 
@@ -514,6 +514,6 @@ export class BlockLexer<T extends typeof BlockLexer> {
       }
     }
 
-    return { tokens: this.tokens, links: this.links, fm: this.meta };
+    return { tokens: this.tokens, links: this.links, fm: this.frontmatter };
   }
 }

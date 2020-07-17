@@ -12,9 +12,9 @@ import { Marked } from "./mod.ts";
 const decoder = new TextDecoder("utf-8");
 const filename = Deno.args[0];
 const markdown = decoder.decode(await Deno.readFile(filename));
-const markup = await Marked.parse(markdown);
-console.log(Marked.content);
-console.log(Marked.metadata);
+const marked = Marked.parse(markdown);
+console.log(marked.content);
+console.log(marked.metadata);
 ```
 
 Now running:
@@ -22,7 +22,6 @@ Now running:
 ```bash
 deno run --allow-read --allow-net md2html.ts example.md > example.html
 ```
-The `--allow-net` flag is required to use `fetch()` on Yaml parsing. Will output:
 
 ```html
 <h1 id="hello-world">Hello World</h1>
