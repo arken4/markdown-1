@@ -47,13 +47,13 @@ export class Marked {
   }
 
   /**
-   * Accepts Markdown text and returns Marked object.
+   * Accepts Markdown text and returns an object.
    *
    * @param src String of markdown source to be compiled.
    * @param options Hash of options. They replace, but do not merge with the default options.
    * If you want the merging, you can to do this via `Marked.setOptions()`.
    */
-  static parse(src: string, options: MarkedOptions = this.options): any {
+  static parse(src: string, options: MarkedOptions = this.options): Obj {
     try {
       const { tokens, links, fm } = this.callBlockLexer(src, options);
       this.parsed.content = this.callParser(tokens, links, options);
