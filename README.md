@@ -20,7 +20,7 @@ console.log(marked.metadata);
 Now running:
 
 ```bash
-deno run --allow-read --allow-net md2html.ts example.md > example.html
+deno run --allow-read md2html.ts example.md > example.html
 ```
 
 ```html

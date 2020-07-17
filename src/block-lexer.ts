@@ -19,9 +19,10 @@ import {
   RulesBlockTables,
   Token,
   TokenType,
+  Obj,
 } from "./interfaces.ts";
 import { Marked } from "./marked.ts";
-import { parse } from "https://deno.land/std/encoding/yaml.ts";
+import { load } from "https://deno.land/std/encoding/_yaml/loader/loader.ts";
 
 export class BlockLexer<T extends typeof BlockLexer> {
   static simpleRules: RegExp[] = [];
@@ -38,7 +39,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
   protected options: MarkedOptions;
   protected links: Links = {};
   protected tokens: Token[] = [];
-  protected frontmatter: object = {};
+  protected frontmatter: Obj = {};
   protected hasRulesGfm!: boolean;
   protected hasRulesTables!: boolean;
 
@@ -299,7 +300,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
           // Grabs front-matter data and parse it into Javascript object.
           if (fmArr = /^(?:\-\-\-)(.*?)(?:\-\-\-|\.\.\.)/s.exec(nextPart)) {
             nextPart = nextPart.substring(fmArr[0].length);
-            this.frontmatter = <object> parse(fmArr[1]);
+            this.frontmatter = <Obj> load(fmArr[1]);
           }
           continue;
 
