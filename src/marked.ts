@@ -25,6 +25,7 @@ export class Marked {
   static options = new MarkedOptions();
   static content: string = "";
   static metadata: any = {};
+  protected static init: boolean = false;
   protected static simpleRenderers: SimpleRenderer[] = [];
 
   /**
@@ -56,7 +57,10 @@ export class Marked {
    */
   static async parse(src: string, options: MarkedOptions = this.options): Promise<Marked> {
     try {
-      await Yaml.initYaml();
+      if (!this.init) {
+        await Yaml.initYaml();
+        this.init = true;
+      }
       const { tokens, links, fm } = this.callBlockLexer(src, options);
       this.content = this.callParser(tokens, links, options);
       this.metadata = <JSON> fm;
@@ -78,7 +82,10 @@ export class Marked {
     src: string,
     options: MarkedOptions = this.options,
   ): Promise<DebugReturns> {
-    await Yaml.initYaml();
+    if (!this.init) {
+      await Yaml.initYaml();
+      this.init = true;
+    }
     const { tokens, links, fm } = this.callBlockLexer(src, options);
     let origin = tokens.slice();
     const parser = new Parser(options);
