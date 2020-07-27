@@ -116,6 +116,15 @@ export interface RulesInlineGfm extends RulesInlineBase {
 
 export interface RulesInlineBreaks extends RulesInlineGfm {}
 
+export interface RulesInlineExtended extends RulesInlineGfm {
+  sup: RegExp;
+  sub: RegExp;
+  emoji: RegExp;
+  footnote: RegExp;
+  abbr: RegExp;
+  highlight: RegExp;
+}
+
 export class MarkedOptions {
   gfm?: boolean = true;
   tables?: boolean = true;
@@ -166,6 +175,10 @@ export class MarkedOptions {
    * ```
    */
   isNoP?: boolean;
+  /**
+   * Enable support for extended syntax. (Under development)
+   */
+  extended?: boolean = false;
 }
 
 export interface LexerReturns {

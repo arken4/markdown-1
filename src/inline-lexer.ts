@@ -18,6 +18,7 @@ import {
   RulesInlineCallback,
   RulesInlineGfm,
   RulesInlinePedantic,
+  RulesInlineExtended
 } from "./interfaces.ts";
 import { Marked } from "./marked.ts";
 import { Renderer } from "./renderer.ts";
@@ -39,11 +40,16 @@ export class InlineLexer {
    * GFM + Line Breaks Inline Grammar.
    */
   protected static rulesBreaks: RulesInlineBreaks;
+  /**
+   * Extended Syntax support.
+   */
+  protected static rulesExtended: RulesInlineExtended;
   protected rules!:
     | RulesInlineBase
     | RulesInlinePedantic
     | RulesInlineGfm
-    | RulesInlineBreaks;
+    | RulesInlineBreaks
+    | RulesInlineExtended;
   protected renderer: Renderer;
   protected inLink!: boolean;
   protected hasRulesGfm!: boolean;
@@ -168,10 +174,32 @@ export class InlineLexer {
     });
   }
 
+  protected static getRulesExtended(): RulesInlineExtended {
+    if (this.rulesExtended) {
+      return this.rulesExtended;
+    }
+
+    const gfm = this.getRulesGfm();
+
+    return (this.rulesExtended = {
+      ...gfm,
+      ...{ // TODO
+        sub: /(?:)/,
+        sup: /(?:)/,
+        emoji: /(?:)/,
+        footnote: /(?:)/,
+        abbr: /(?:)/,
+        highlight: /(?:)/
+      }
+    });
+  }
+
   protected setRules() {
     if (this.options.gfm) {
       if (this.options.breaks) {
         this.rules = this.staticThis.getRulesBreaks();
+      } else if (this.options.extended) {
+        this.rules = this.staticThis.getRulesExtended();
       } else {
         this.rules = this.staticThis.getRulesGfm();
       }
