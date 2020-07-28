@@ -53,6 +53,7 @@ export class InlineLexer {
   protected renderer: Renderer;
   protected inLink!: boolean;
   protected hasRulesGfm!: boolean;
+  protected hasExtendedSyntax!: boolean;
   protected ruleCallbacks!: RulesInlineCallback[];
 
   constructor(
@@ -184,8 +185,8 @@ export class InlineLexer {
     return (this.rulesExtended = {
       ...gfm,
       ...{ // TODO
-        sub: /(?:)/,
-        sup: /(?:)/,
+        sub: /^~(?=\S)([\s\S]*?\S)~/,
+        sup: /^\^(?=\S)([\s\S]*?\S)\^(?!\^)/,
         emoji: /(?:)/,
         footnote: /(?:)/,
         abbr: /(?:)/,
@@ -209,7 +210,8 @@ export class InlineLexer {
       this.rules = this.staticThis.getRulesBase();
     }
 
-    this.hasRulesGfm = (this.rules as RulesInlineGfm).url !== undefined;
+    this.hasExtendedSyntax = (this.rules as RulesInlineExtended).sup !== undefined;
+    this.hasRulesGfm = (this.rules as RulesInlineGfm).url !== undefined || this.hasExtendedSyntax;
   }
 
   /**
@@ -336,6 +338,36 @@ export class InlineLexer {
         continue;
       }
 
+      // del (gfm)
+      if (
+        this.hasRulesGfm &&
+        (execArr = (this.rules as RulesInlineGfm).del.exec(nextPart))
+      ) {
+        nextPart = nextPart.substring(execArr[0].length);
+        out += this.renderer.del(this.output(execArr[1]));
+        continue;
+      }
+
+      // subscript (extended syntax)
+      if (
+        this.hasExtendedSyntax &&
+        (execArr = (this.rules as RulesInlineExtended).sub.exec(nextPart))
+        ) {
+        nextPart = nextPart.substring(execArr[0].length);
+        out += this.renderer.sub(this.output(execArr[1]));
+        continue;
+      }
+
+      // superscript (extended syntax)
+      if (
+        this.hasExtendedSyntax &&
+        (execArr = (this.rules as RulesInlineExtended).sup.exec(nextPart))
+        ) {
+        nextPart = nextPart.substring(execArr[0].length);
+        out += this.renderer.super(this.output(execArr[1]));
+        continue;
+      }
+
       // code
       if ((execArr = this.rules.code.exec(nextPart))) {
         if (!this.options.escape) throw ReferenceError;
@@ -350,16 +382,6 @@ export class InlineLexer {
       if ((execArr = this.rules.br.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
         out += this.renderer.br();
-        continue;
-      }
-
-      // del (gfm)
-      if (
-        this.hasRulesGfm &&
-        (execArr = (this.rules as RulesInlineGfm).del.exec(nextPart))
-      ) {
-        nextPart = nextPart.substring(execArr[0].length);
-        out += this.renderer.del(this.output(execArr[1]));
         continue;
       }
 

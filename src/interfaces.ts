@@ -178,7 +178,7 @@ export class MarkedOptions {
   /**
    * Enable support for extended syntax. (Under development)
    */
-  extended?: boolean = false;
+  extended?: boolean = true;
 }
 
 export interface LexerReturns {

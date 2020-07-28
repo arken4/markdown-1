@@ -120,6 +120,14 @@ ${body}</tbody>
     return "<code>" + text + "</code>";
   }
 
+  super(text: string): string {
+    return "<sup>" + text + "</sup>";
+  }
+
+  sub(text: string): string {
+    return "<sub>" + text + "</sub>";
+  }
+
   br(): string {
     return this.options.xhtml ? "<br/>" : "<br>";
   }
