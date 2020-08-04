@@ -1,6 +1,7 @@
+# The Extended Syntax work is now moved to the [original repo](https://github.com/ubersl0th/markdown)   
 # markdown
 
-Deno Markdown module with Front-matter support forked from https://github.com/ubersl0th/markdown
+Deno Markdown module with Front-matter support forked from https://github.com/ubersl0th/markdown 
 
 ### Example usage
 
